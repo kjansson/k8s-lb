@@ -1,0 +1,23 @@
+vrrp_instance VI_2 {
+    interface ${INTERFACE:-eth0}
+    state ${STATE:-MASTER}
+    virtual_router_id ${VIRTUAL_ROUTER_ID:-51}
+    priority ${PRIORITY:-101} # 101 on master, 100 on backups
+
+    virtual_ipaddress {
+        ${VIRTUAL_IP}/${VIRTUAL_MASK}
+    }
+
+    track_interface {
+        ${INTERFACE:-eth0}
+    }
+
+    authentication {
+        auth_type PASS
+        auth_pass ${PASSWORD:-s3cr3t}
+    }
+
+    track_script {
+        chk_haproxy
+    }
+}
