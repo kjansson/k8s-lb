@@ -2,6 +2,8 @@
 
 ## Info
 
+NOTE! THIS IS A WORK IN PROGRESS!
+
 K8s-lb is an implementation of HAproxy and keepalived designed to enable HA TCP loadbalancing in kubernetes running in non-cloud environments.
 It is simply HAProxy and keepalived combined in one container with some helper scripts that utilizes K8s functionality to automate configuration and enable running a simple service discovery script on the side to configure HAProxy dynamically.
 

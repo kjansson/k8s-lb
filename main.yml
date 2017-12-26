@@ -1,0 +1,21 @@
+---
+
+#- selinux:
+#    state: disabled
+
+- lineinfile:
+    path: /etc/sysctl.conf
+    line: 'net.ipv4.ip_nonlocal_bind = 1'
+    
+- lineinfile:
+    path: /etc/sysctl.conf
+    line: 'net.ipv4.ip_nonlocal_bind = 1'
+
+- name: "Reload sysctl"
+  command: sysctl -p
+
+- name: "Add ip_vs module for VIP"
+  modprobe:
+    name: ip_vs
+    state: present
+

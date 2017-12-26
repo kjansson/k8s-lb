@@ -1,0 +1,73 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-lb
+  labels:
+    app: k8s-lb
+spec:
+  ports:
+  - port: 6666
+    name: dummy
+  clusterIP: None
+  selector:
+    app: k8s-lb
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  labels:
+    app: k8s-lb
+  name: k8s-lb
+spec:
+  serviceName: k8s-lb
+  selector:
+    matchLabels:
+      app: k8s-lb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: k8s-lb
+    spec:
+      hostNetwork: true
+      containers:
+      - image: kumpe/k8s-lb
+        name: k8s-lb
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["NET_ADMIN"]
+        env:
+        - name: VIRTUAL_ROUTER_ID ## YOU NEED THIS IF YOU RUN IN PARALLEL IN DIFFERENT NAMESPACES. ONE NAMESPACE = ONE VRID
+          value: "16"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: VIRTUAL_IP
+          valueFrom:
+            configMapKeyRef:
+              name: keepalived-config
+              key: vip
+        - name: VIRTUAL_MASK
+          valueFrom:
+            configMapKeyRef:
+              name: keepalived-config
+              key: vipmask
+        volumeMounts:
+        - name: config-volume
+          mountPath: /haproxy
+      volumes:
+        - name: config-volume
+          configMap:
+          # Provide the name of the ConfigMap containing the files you want
+          # to add to the container
+            name: haproxy
+      restartPolicy: Always
+
